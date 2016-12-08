@@ -1,5 +1,6 @@
+import os
 import numpy as np
-from parameters import *
+from parameters_wm import *
 
 def conductivity(sigma_skull):
     s12 = sigma_brain / sigma_csf
@@ -81,18 +82,18 @@ coef = H(n)
 coef = np.insert(coef, 0, 0)
 Lprod = np.polynomial.legendre.Legendre(coef)
 phi_20 = I*d*Lprod(np.cos(np.deg2rad(theta))) / (4*np.pi*sigma_brain*(rz**2))
-np.save('phi_20_c.npy', phi_20)
+np.save(os.path.join('results', 'phi_20_c.npy'), phi_20)
 
 s12, s23, s34 = conductivity(sigma_skull40)
 coef = H(n)
 coef = np.insert(coef, 0, 0)
 Lprod = np.polynomial.legendre.Legendre(coef)
 phi_40 = I*d*Lprod(np.cos(np.deg2rad(theta))) / (4*np.pi*sigma_brain*(rz**2))
-np.save('phi_40_c.npy', phi_40)
+np.save(os.path.join('results', 'phi_40_c.npy'), phi_40)
 
 s12, s23, s34 = conductivity(sigma_skull80)
 coef = H(n)
 coef = np.insert(coef, 0, 0)
 Lprod = np.polynomial.legendre.Legendre(coef)
 phi_80 = I*d*Lprod(np.cos(np.deg2rad(theta))) / (4*np.pi*sigma_brain*(rz**2))
-np.save('phi_80_c.npy', phi_80)
+np.save(os.path.join('results', 'phi_80_c.npy'), phi_80)

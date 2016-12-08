@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -16,18 +17,18 @@ phi_sphere = I*d*Lprod(np.cos(np.deg2rad(theta))) / (4*np.pi*sigma_brain*(dipole
 #phi_40 = (27.4*np.exp(-0.10*theta) -5.49 + (0.203*theta) - 0.00234*(theta**2))*phi_0
 #phi_80 = (13.4*np.exp(-0.10*theta) - 0.155 - (0.0135*theta))*phi_0
 
-phi_20 = np.load('phi_20.npy')
-phi_20_c = np.load('phi_20_c.npy')
+phi_20 = np.load(os.path.join('results', 'phi_20.npy'))
+phi_20_c = np.load(os.path.join('results', 'phi_20_c.npy'))
 
-phi_40 = np.load('phi_40.npy')
-phi_40_c = np.load('phi_40_c.npy')
+phi_40 = np.load(os.path.join('results', 'phi_40.npy'))
+phi_40_c = np.load(os.path.join('results', 'phi_40_c.npy'))
 
-phi_80 = np.load('phi_80.npy')
-phi_80_c = np.load('phi_80_c.npy')
+phi_80 = np.load(os.path.join('results', 'phi_80.npy'))
+phi_80_c = np.load(os.path.join('results', 'phi_80_c.npy'))
 
-num_20 = np.load('4Shell_FEM_20.npy')
-num_40 = np.load('4Shell_FEM_40.npy')
-num_80 = np.load('4Shell_FEM_80.npy')
+num_20 = np.load(os.path.join('results', '4Shell_FEM_20_wm.npy'))
+num_40 = np.load(os.path.join('results', '4Shell_FEM_40_wm.npy'))
+num_80 = np.load(os.path.join('results', '4Shell_FEM_80_wm.npy'))
 
 plt.subplot(111)
 plt.plot(theta, phi_20, 'k', label='Nunez 20')
@@ -35,9 +36,9 @@ plt.plot(theta, phi_20_c, 'b', label='Correction')
 plt.plot(theta, num_20,  'r.', label='FEM 20')
 plt.xlabel('Polar angle (degrees)')
 plt.ylabel('Potential $\mu V$')
-plt.title('$\sigma_{skull} =sigma_{brain} / 20$')
+plt.title('$\sigma_{skull} = \sigma_{brain} / 20$')
 plt.legend()
-plt.savefig('Potentials_20.png')
+plt.savefig(os.path.join('results', 'Potentials_20.png'))
 
 plt.clf()
 plt.subplot(111)
@@ -46,9 +47,9 @@ plt.plot(theta, phi_40_c, 'b', label='Correction')
 plt.plot(theta, num_40,  'r.', label='FEM 40')
 plt.xlabel('Polar angle (degrees)')
 plt.ylabel('Potential $\mu V$')
-plt.title('$\sigma_{skull} =sigma_{brain} / 40$')
+plt.title('$\sigma_{skull} = \sigma_{brain} / 40$')
 plt.legend()
-plt.savefig('Potentials_40.png')
+plt.savefig(os.path.join('results', 'Potentials_40.png'))
 
 plt.clf()
 plt.subplot(111)
@@ -57,7 +58,7 @@ plt.plot(theta, phi_80_c, 'b', label='Correction')
 plt.plot(theta, num_80,  'r.', label='FEM 80')
 plt.xlabel('Polar angle (degrees)')
 plt.ylabel('Potential $\mu V$')
-plt.title('$\sigma_{skull} =sigma_{brain} / 80$')
+plt.title('$\sigma_{skull} = \sigma_{brain} / 80$')
 plt.legend()
-plt.savefig('Potentials_80.png')
+plt.savefig(os.path.join('results', 'Potentials_80.png'))
 #plt.show()

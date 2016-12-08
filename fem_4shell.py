@@ -1,6 +1,4 @@
 import os
-import sys
-import h5py
 import numpy as np
 from dolfin import *
 import parameters as params
@@ -54,7 +52,7 @@ def main_4shell_fem(mesh, subdomains, boundaries, skull_cond, save_as):
 
     ele_pos_list = params.ele_coords
     vals = extract_pots(phi, ele_pos_list)
-    np.save(save_as, vals)
+    np.save(os.path.join('results', save_as), vals)
     return
 
 if __name__ == '__main__':
