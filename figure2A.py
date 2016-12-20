@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-
+from plotting_convention import mark_subplots, simplify_axes
 from parameters_wm import *
 
 # Homogeneous sphere, Nunez 2006, Eq. 6.7
@@ -23,17 +23,21 @@ phi_20_sanity = np.load(os.path.join('results', 'phi_sanity.npy'))
 phi_20_sanity_98 = np.load(os.path.join('results', 'phi_sanity_98.npy'))
 phi_20_c_sanity = np.load(os.path.join('results', 'phi_c_sanity.npy'))
 
-plt.subplot(111)
+fig = plt.figure(figsize=[5, 4])
+fig.subplots_adjust(bottom=0.12)
+plt.subplot(111, xlim=[0, 50], ylim=[-0.2, 5])
 #plt.plot(theta, phi_20, 'k', label='Nunez 20')
 
-plt.plot(theta, phi_sphere,  'r', label='Sphere')
-plt.plot(theta, phi_20_sanity, 'g+', label='Srinivasan-06')
-plt.plot(theta, phi_20_sanity_98, 'k*', label='Srinivasan-98')
+plt.plot(theta, phi_sphere,  'r', label='Homogeneous sphere')
+plt.plot(theta, phi_20_sanity, 'g+', label='Nunez & Srinivasan (2006)')
+plt.plot(theta, phi_20_sanity_98, 'k*', label='Srinivasan (1998)')
 plt.plot(theta, phi_20_c_sanity, 'b.', label='Correction')
 
 plt.xlabel('Polar angle (degrees)')
-plt.ylabel('Potential $\mu V$')
+plt.ylabel('Potential ($\mu$V)')
 plt.title('$\sigma_{skull} = \sigma_{brain} = \sigma_{csf} = \sigma_{scalp}$')
-plt.legend()
-plt.savefig(os.path.join('results', 'sanity.png'), dpi=300)
+plt.legend(frameon=False, bbox_to_anchor=(1, 0.9), fontsize=11)
+simplify_axes(fig.axes)
+plt.savefig(os.path.join('results', 'sanity.png'), dpi=150)
+
 #plt.show()

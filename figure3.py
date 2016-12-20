@@ -37,7 +37,7 @@ num_80 = np.load(os.path.join('results', '4Shell_FEM_80_wm.npy'))
 fig = plt.figure(figsize=(12, 4))
 fig.subplots_adjust(bottom=0.12, left=0.05, right=0.99)
 
-ax = plt.subplot(131, ylim=[-0.1, 1.1], ylabel='Potential $\mu V$',
+ax = plt.subplot(131, ylim=[-0.1, 1.1], ylabel='Potential ($\mu$V)',
                  title='$\sigma_{skull} = \sigma_{brain} / 20$')
 plt.plot(theta, phi_20, 'k', lw=2)
 plt.plot(theta, phi_20_98, 'g', lw=2)
