@@ -58,14 +58,14 @@ def main_4shell_fem(mesh, subdomains, boundaries, skull_cond, save_as):
 
 if __name__ == '__main__':
     print 'Loading meshes'
-    mesh =  Mesh(os.path.join("mesh", "sphere_4_wm.xml"))
-    subdomains = MeshFunction("size_t", mesh, os.path.join("mesh", "sphere_4_wm_physical_region.xml"))
-    boundaries = MeshFunction("size_t", mesh, os.path.join("mesh", "sphere_4_wm_facet_region.xml"))
+    mesh = Mesh(os.path.join("mesh", "sphere_4_wm_high_res.xml"))
+    subdomains = MeshFunction("size_t", mesh, os.path.join("mesh", "sphere_4_wm_high_res_physical_region.xml"))
+    boundaries = MeshFunction("size_t", mesh, os.path.join("mesh", "sphere_4_wm_high_res_facet_region.xml"))
 
     print 'Done loading meshes'
-    main_4shell_fem(mesh, subdomains, boundaries, params.sigma_skull20, '4Shell_FEM_20_wm.npy')
+    main_4shell_fem(mesh, subdomains, boundaries, params.sigma_skull20, '4Shell_FEM_20_wm_high_res.npy')
     print 'Done 4Shell-FEM-20'
-    main_4shell_fem(mesh, subdomains, boundaries, params.sigma_skull40, '4Shell_FEM_40_wm.npy')
+    main_4shell_fem(mesh, subdomains, boundaries, params.sigma_skull40, '4Shell_FEM_40_wm_high_res.npy')
     print 'Done 4Shell-FEM-40'
-    main_4shell_fem(mesh, subdomains, boundaries, params.sigma_skull80, '4Shell_FEM_80_wm.npy')
+    main_4shell_fem(mesh, subdomains, boundaries, params.sigma_skull80, '4Shell_FEM_80_wm_high_res.npy')
     print 'Done 4Shell-FEM-80'
