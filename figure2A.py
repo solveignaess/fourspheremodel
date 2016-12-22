@@ -24,7 +24,7 @@ phi_20_sanity_98 = np.load(os.path.join('results', 'phi_sanity_98.npy'))
 phi_20_c_sanity = np.load(os.path.join('results', 'phi_c_sanity.npy'))
 
 fig = plt.figure(figsize=[5, 4])
-fig.subplots_adjust(bottom=0.12)
+fig.subplots_adjust(bottom=0.14)
 plt.subplot(111, xlim=[0, 50], ylim=[-0.2, 5])
 #plt.plot(theta, phi_20, 'k', label='Nunez 20')
 
@@ -38,6 +38,7 @@ plt.ylabel('Potential ($\mu$V)')
 plt.title('$\sigma_{skull} = \sigma_{brain} = \sigma_{csf} = \sigma_{scalp}$')
 plt.legend(frameon=False, bbox_to_anchor=(1, 0.9), fontsize=11)
 simplify_axes(fig.axes)
-plt.savefig(os.path.join('results', 'sanity.png'), dpi=150)
+mark_subplots(fig.axes, letters='A', xpos=0., ypos=1.1)
+plt.savefig(os.path.join('results', 'sanity.png'), dpi=300)
 
 #plt.show()
