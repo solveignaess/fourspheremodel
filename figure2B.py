@@ -9,8 +9,8 @@ from __future__ import division
 import os
 from scipy.special import lpmv
 import numpy as np
-from CalcLFPNoCell import CalcLFPNoCell
 from plotting_convention import simplify_axes, mark_subplots
+
 class CalcPotential4Sphere:
     """ Import all data needed for calculating the extracellular potential Phi at location r
     from a current dipole moment p at location rz. Also decompose p into a radial and a tangential part.
