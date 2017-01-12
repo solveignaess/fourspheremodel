@@ -19,8 +19,8 @@ files = [eeg_rad, eeg_tan , eeg_mix]
 # create array with 2D electrode positions for plotting geometry
 radii = [79000., 80000., 85000., 90000.]
 r = 90000.
-xs = np.linspace(-r, r, 201)
-zs = np.linspace(-r, r, 201)
+xs = np.linspace(-r, r, 1001)
+zs = np.linspace(-r, r, 1001)
 elec_pos = []
 for zpos in zs:
     for xpos in xs:
@@ -165,7 +165,10 @@ for ax, clrs in zip([ax4, ax8, ax12], colors_error_list):
 for ax in [ax2, ax3, ax4, ax6, ax7, ax8, ax10, ax11, ax12]:
     ax.set_aspect('equal')
     ax.axis('off')
-    ax.auto_scale_xyz([-60000.01, 60000.01], [-60000.01, 60000.01], [-60000.01, 60000.01])
+    # ax.auto_scale_xyz([-60000., 60000.], [-60000., 60000.], [-60000., 60000.])
+    ax.set_xlim3d(-65000, 65000)
+    ax.set_ylim3d(-65000, 65000)
+    ax.set_zlim3d(3000-65000, 3000+65000)
     ax.view_init(10, 270)
 
 # colorbars
@@ -254,4 +257,4 @@ fig.text(0.75, .34, 'L',
 
 
 fig.set_size_inches(9., 6.)
-plt.savefig('./results/eeg_fig.pdf', dpi=600., bbox_inches='tight')
+plt.savefig('./results/eeg_fig2.pdf', dpi=600., bbox_inches='tight')
