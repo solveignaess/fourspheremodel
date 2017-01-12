@@ -257,4 +257,4 @@ fig.text(0.75, .34, 'L',
 
 
 fig.set_size_inches(9., 6.)
-plt.savefig('./results/eeg_fig2.pdf', dpi=600., bbox_inches='tight')
+plt.savefig('./results/eeg_fig.pdf', dpi=600., bbox_inches='tight')
