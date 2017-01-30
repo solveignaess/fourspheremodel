@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 
 from parameters import *
+
+import sys
+reload(sys)
+sys.setdefaultencoding('UTF-8')
+
 # Homogeneous infinite medium
 I = 1.
 d = .1
@@ -63,6 +69,7 @@ plt.xlabel('Polar angle (degrees)')
 plt.ylabel('Potential $\mu V$')
 plt.title('$\sigma_{skull} = \sigma_{brain} / 80$')
 # plt.legend()
-fig.legend([l1, l2, l3], ["Nunez", "Correction", "FEM"], loc="lower center", ncol=3, frameon=False)
-plt.savefig(os.path.join('results', 'Potentials_comb_hr.png'))
-#plt.show()
+fig.legend([l1, l2, l3], ["Nunez", "Næss et al.", "FEM"], loc="lower center", ncol=3, frameon=False)
+plt.xlim([0., 80.])
+plt.savefig(os.path.join('results', 'Potentials_comb_hr_test.png'))
+plt.show()

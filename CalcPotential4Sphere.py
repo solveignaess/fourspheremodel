@@ -21,7 +21,6 @@ class CalcPotential4Sphere:
         self.r2 = radii[1]
         self.r3 = radii[2]
         self.r4 = radii[3]
-        # print self.r1, self.r2, self.r3, self.r4
 
         self.sigma1 = sigmas[0]
         self.sigma2 = sigmas[1]
@@ -46,7 +45,7 @@ class CalcPotential4Sphere:
         self.rzloc = rz
         self.rz = np.sqrt(np.sum(rz ** 2))
         self.rz1 = self.rz / self.r1
-        self.r = np.sqrt(np.sum(r ** 2))
+        self.r = np.sqrt(np.sum(r ** 2, axis=1))
 
     def calc_potential(self, p):
         """
@@ -87,9 +86,8 @@ class CalcPotential4Sphere:
         p_tan : ndarray [1E-15 Am]
                 Tangential part of p, orthogonal to self.rz
         """
-        p_rad = np.array([np.dot(p, self.rzloc)/self.rz ** 2 * self.rzloc])
+        p_rad = (np.dot(p, self.rzloc)/self.rz ** 2).reshape(len(p),1) * self.rzloc.reshape(1, len(self.rzloc))
         p_tan = p - p_rad
-
         return p_rad, p_tan
 
     def calc_rad_potential(self, p_rad):
@@ -107,11 +105,15 @@ class CalcPotential4Sphere:
         """
 
         # print 'calc rad pot'
-        p_tot = np.linalg.norm(p_rad)
+        p_tot = np.linalg.norm(p_rad, axis=1)
+        print p_tot
         theta = self.calc_theta()
+        print theta
         s_vector = self.sign_rad_dipole(p_rad)
-        s_vector = s_vector.reshape(len(p_rad), 1)
+        # s_vector = s_vector.reshape(len(p_rad), 1)
+        print s_vector
         phi_const = s_vector * p_tot / (4 * np.pi * self.sigma1 * self.rz ** 2) * self.k1
+        print phi_const
         if self.r <= self.r1:
             # print 'rad brain', self.r, self.r1
             potential_nterms = self.potential_brain_rad(theta)
@@ -164,19 +166,16 @@ class CalcPotential4Sphere:
         elif self.r <= self.r4:
             # print 'tan scalp'
             potential_nterms = self.potential_scalp_tan(theta)
-        elif self.r <= (self.r4+1E-6):
-            self.r = self.r4
-            potential_nterms = self.potential_scalp_rad(theta)
         else:
             potential_nterms = np.nan
-            raise ValueError('Electrode located outside head model. Maximum r = %s µm.', self.r4)
+            # raise ValueError('Electrode located outside head model. Maximum r = %s µm.', self.r4)
 
         potential = phi_hom * potential_nterms
         return potential
 
     def calc_theta(self):
         """Calculate theta and phi for radial dipole"""
-        cos_theta = np.dot(self.rzloc, self.rxyz) / (np.linalg.norm(self.rxyz) * np.linalg.norm(self.rzloc))
+        cos_theta = np.dot(self.rxyz, self.rzloc) / (np.linalg.norm(self.rxyz, axis=1) * np.linalg.norm(self.rzloc))
         cos_theta = np.nan_to_num(cos_theta)
         theta = np.arccos(cos_theta)
         return theta
@@ -185,15 +184,15 @@ class CalcPotential4Sphere:
         """Calculate phi-angles for tangential dipole."""
         proj_rxyz_rz = np.dot(self.rxyz, self.rzloc) / np.sum(self.rzloc ** 2) * self.rzloc
         rxy = self.rxyz - proj_rxyz_rz
-        rx = np.cross(p, self.rzloc)/(np.linalg.norm(p) * self.rz)
-        cos_phi = np.dot(rx, rxy) / (np.linalg.norm(rxy) * np.linalg.norm(rx))
+        rx = (np.cross(p, self.rzloc).T/(np.linalg.norm(p, axis=1) * self.rz)).T
+        cos_phi = np.dot(rx, rxy) / (np.linalg.norm(rxy) * np.linalg.norm(rx, axis=1))
         cos_phi = np.nan_to_num(cos_phi)
         phi_wrong_sign = np.arccos(cos_phi)
 
         phi = phi_wrong_sign
+        sign_test = np.dot(p, self.rxyz)/(self.r*np.linalg.norm(p, axis=1))
         for i in range(len(p)):
-            sign_test = np.dot(p, self.rxyz)/(self.r*np.linalg.norm(p))
-            if sign_test < 0:
+            if sign_test[i] < 0:
                 phi[i] = 2*np.pi - phi_wrong_sign[i]
         return phi
 
@@ -203,12 +202,14 @@ class CalcPotential4Sphere:
         to the s-vector, so that the potential can be
         calculated as if the dipole were pointing outwards,
         and later be multiplied by -1 to get the right potential."""
-        sign_vector = np.ones((len(p), 1))
+        sign_vector = np.ones(len(p))
+        print 'sign_vector before loop:', sign_vector
+        radial_test = np.dot(p, self.rzloc) / (np.linalg.norm(p, axis=1) * self.rz)
         for i in range(len(p)):
-            radial_test = np.dot(p, self.rzloc) / (np.linalg.norm(p) * self.rz)
-            if np.abs(radial_test + 1) < 10 ** -8:
+            if np.abs(radial_test[i] + 1) < 10 ** -8:
                 # print p[i], np.dot(p, self.rzloc)
                 sign_vector[i] = -1.
+        print 'sign_vector after loop', sign_vector
         return sign_vector
 
     def potential_brain_rad(self, theta):

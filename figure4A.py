@@ -43,6 +43,6 @@ plt.title('$\sigma_{skull} = \sigma_{brain} = \sigma_{csf} = \sigma_{scalp}$')
 # plt.legend(frameon=False, bbox_to_anchor=(1, 0.9), fontsize=11)
 simplify_axes(fig.axes)
 mark_subplots(fig.axes, letters='A', xpos=0., ypos=1.1)
-plt.savefig(os.path.join('results', 'sanity.png'), dpi=300)
+plt.savefig(os.path.join('results', 'sanity_A.png'), dpi=300)
 
 #plt.show()
