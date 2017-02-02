@@ -11,10 +11,14 @@ and numerically with FEM.'''
 plt.close('all')
 
 # load scalp potentials from eeg simulations
-eeg_rad = np.load('./results/eeg_radial.npz')
-eeg_tan = np.load('./results/eeg_tangential.npz')
-eeg_mix = np.load('./results/eeg_mix.npz')
-files = [eeg_rad, eeg_tan , eeg_mix]
+# eeg_rad = np.load('./results/eeg_radial.npz')
+# eeg_tan = np.load('./results/eeg_tangential.npz')
+# eeg_mix = np.load('./results/eeg_mix.npz')
+eeg_mix200000 = np.load('./results/eeg_mix200000.npz')
+eeg_rad200000 = np.load('./results/eeg_rad200000.npz')
+eeg_tan200000 = np.load('./results/eeg_tan200000.npz')
+# files = [eeg_rad, eeg_tan , eeg_mix]
+files = [eeg_rad200000, eeg_tan200000, eeg_mix200000]
 
 # create array with 2D electrode positions for plotting geometry
 radii = [79000., 80000., 85000., 90000.]
@@ -59,14 +63,16 @@ error_list = [np.zeros(X.shape), np.zeros(X.shape), np.zeros(X.shape)]
 P1s = []
 rz1s = []
 phi_fem_list = []
+k = 1e-6# convert nV to mV
 for idx, f in enumerate(files):
     param_dict = f['params'].item()
-    fem_phi = f['phi']
-    phi_fem_list.append(fem_phi)
+
     charge_pos = param_dict['charge_pos']
     charges = param_dict['charge']
     rz1 = (charge_pos[0] + charge_pos[1])/2
+    fem_phi = f['phi']*k
     P1 = np.array([charge_pos[0]*charges[0] + charge_pos[1]*charges[1]])
+    phi_fem_list.append(fem_phi)
     P1s.append(P1)
     r = param_dict['radii'][3]
     radii = param_dict['radii']
@@ -76,18 +82,18 @@ for idx, f in enumerate(files):
     for i in range(X.shape[0]):
         for j in range(X.shape[1]):
             sphere_mod = CalcPotential4Sphere(radii, sigmas, np.array([X[i,j], Y[i,j], Z[i,j]]), rz1)
-            pot = sphere_mod.calc_potential(P1)
+            pot = sphere_mod.calc_potential(P1)*k
             phi_4s[i,j] = np.nan_to_num(pot)
             error[i,j] = np.abs(phi_4s[i,j] - fem_phi[i,j])
     print 'error max:', np.max(np.abs(error))
 
 # create color lists for plotting of potentials and error
-vmax = .1
+vmax = .02
 vmin = -vmax
 clr = lambda phi: plt.cm.PRGn((phi - vmin) / (vmax - vmin))
-vmax_error = 0.006
+vmax_error = .001
 vmin_error = 0.
-clr_error = lambda error: plt.cm.Blues((error - vmin_error) / (vmax_error - vmin_error))
+clr_error = lambda error: plt.cm.Greys((error - vmin_error) / (vmax_error - vmin_error))
 
 colors_4s_list = [clr(phi_4s_list[idx]) for idx in range(3)]
 colors_fem_list = [clr(phi_fem_list[idx]) for idx in range(3)]
@@ -109,7 +115,7 @@ ax9 = plt.subplot2grid((3,4),(2,0))
 ax10 = plt.subplot2grid((3,4),(2,1), projection='3d')
 ax11 = plt.subplot2grid((3,4),(2,2), projection='3d')
 ax12 = plt.subplot2grid((3,4),(2,3), projection='3d')
-ax2.set_title('4-sphere', y = 1.1)
+ax2.set_title('Analytical', y = 1.1)
 ax3.set_title('FEM', y = 1.1)
 ax4.set_title('Error', y = 1.1)
 
@@ -132,22 +138,17 @@ for ax, P1 in zip([ax1, ax5, ax9], P1s):
     ax.set_xlim(-120000., 120000.)
     ax.set_ylim(-120000., 120000.)
 
-    arrow = np.sum(P1, axis = 0)
-    if ax == ax1:
-        px = charge_pos[0][0]
-        pz = charge_pos[0][2]-20*1000
-    elif ax == ax5:
-        px = charge_pos[0][0] + 3000
-        pz = charge_pos[0][2] - 10000  # + 2250
-    else:
-        px = charge_pos[0][0] + 1590
-        pz = charge_pos[0][2]- 20*1000+1590
-    ax.arrow(px, pz,
-              11*arrow[0], 11*arrow[2],
+    arrow = np.sum(P1, axis = 0)/10000
+    start_pos = rz1 - arrow
+    ax.arrow(start_pos[0], start_pos[2],
+              2*arrow[0], 2*arrow[2],
               fc='k',
               ec='k',
               width = 170,
-              length_includes_head=False)
+              head_width = 5000.,
+              length_includes_head=False,
+              )
+    ax.plot(rz1[0], rz1[2]-100, 'ro', ms=4)
     ax.axis('off')
 # plot analytically calculated potentials
 for ax, clrs in zip([ax2, ax6, ax10], colors_4s_list):
@@ -177,19 +178,22 @@ m = plt.cm.ScalarMappable(cmap=plt.cm.PRGn)
 m.set_array(phi_4s_list[1])
 cbar1 = fig.colorbar(m, cax=cax1, format='%3.3f', extend = 'both', orientation='horizontal')
 cbar1.outline.set_visible(False)
-ticks = np.linspace(-0.4, 0.4, 9)
+ticks = np.linspace(-0.8, 0.8, 9)
 plt.xticks(ticks, [str(tick) for tick in ticks], rotation = 40)
-cbar1.set_label('Potential (nV)', labelpad=5.2)
+# multiply both P and phi's with 1000 and we get the same result, but in mV
+cbar1.set_label('Potential (mV)', labelpad=5.2)
 
 cax2 = fig.add_axes([0.79, 0.07, 0.15, 0.01])
-m = plt.cm.ScalarMappable(cmap=plt.cm.Blues)
+m = plt.cm.ScalarMappable(cmap=plt.cm.Greys)
 ticks2 = np.linspace(0.001, 0.005, 9)
 m.set_array(error_list[0])
 cbar2 = fig.colorbar(m, cax=cax2, format='%3.6f', extend='max', orientation='horizontal')
 cbar2.outline.set_visible(False)
 cax2.set_xticks(ticks2)
 cax2.set_xticklabels(['0.001', '', '0.002', '', '0.003', '', '0.004', '', '0.005'], rotation = 40)
-cbar2.set_label('Potential (nV)', labelpad=.1)
+
+# multiply both P and phi's with 1000 and we get the same result, but in mV
+cbar2.set_label('Potential (mV)', labelpad=.1)
 
 fig.subplots_adjust(wspace = 0., hspace=-0.01, right = 0.98, left = 0.02)
 
@@ -257,4 +261,4 @@ fig.text(0.75, .34, 'L',
 
 
 fig.set_size_inches(9., 6.)
-plt.savefig('./results/eeg_fig.pdf', dpi=600., bbox_inches='tight')
+plt.savefig('./results/eeg_fig200000.pdf', dpi=600., bbox_inches='tight')
