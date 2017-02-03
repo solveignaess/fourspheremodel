@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jan 15 17:24:00 2015
-
-@author: solveig
-"""
-
 from __future__ import division
-from scipy.special import lpmv
+from scipy.special import eval_legendre, lpmv
+import matplotlib.pyplot as plt
 import numpy as np
+# from plotting.PlotLFP import PlotLFP
+
 
 class CalcPotential4Sphere:
     """ Import all data needed for calculating the extracellular potential Phi at location r
@@ -21,6 +18,7 @@ class CalcPotential4Sphere:
         self.r2 = radii[1]
         self.r3 = radii[2]
         self.r4 = radii[3]
+        # print self.r1, self.r2, self.r3, self.r4
 
         self.sigma1 = sigmas[0]
         self.sigma2 = sigmas[1]
@@ -62,13 +60,14 @@ class CalcPotential4Sphere:
 
         """
         # print 'calc potential'
+        print 'p', p
         p_rad, p_tan = self.decompose_dipole(p)
-
+        print 'p_rad', p_rad
+        print 'p_tan', p_tan
         pot_rad = self.calc_rad_potential(p_rad)
         pot_tan = self.calc_tan_potential(p_tan)
 
         pot_tot = pot_rad + pot_tan
-        # print p_rad, p_tan
         return pot_tot
 
     def decompose_dipole(self, p):
@@ -88,6 +87,7 @@ class CalcPotential4Sphere:
         """
         p_rad = (np.dot(p, self.rzloc)/self.rz ** 2).reshape(len(p),1) * self.rzloc.reshape(1, len(self.rzloc))
         p_tan = p - p_rad
+
         return p_rad, p_tan
 
     def calc_rad_potential(self, p_rad):
@@ -104,35 +104,40 @@ class CalcPotential4Sphere:
             Array containing the current dipole moment at point r.
         """
 
-        # print 'calc rad pot'
         p_tot = np.linalg.norm(p_rad, axis=1)
         print p_tot
         theta = self.calc_theta()
-        print theta
         s_vector = self.sign_rad_dipole(p_rad)
-        # s_vector = s_vector.reshape(len(p_rad), 1)
-        print s_vector
         phi_const = s_vector * p_tot / (4 * np.pi * self.sigma1 * self.rz ** 2) * self.k1
-        print phi_const
-        if self.r <= self.r1:
-            # print 'rad brain', self.r, self.r1
-            potential_nterms = self.potential_brain_rad(theta)
-        elif self.r <= self.r2:
-            # print 'rad csf'
-            potential_nterms = self.potential_csf_rad(theta)
-        elif self.r <= self.r3:
-            # print 'rad skull'
-            potential_nterms = self.potential_skull_rad(theta)
-        elif self.r <= (self.r4):
-            # print 'rad scalp'
-            potential_nterms = self.potential_scalp_rad(theta)
-        elif self.r <= (self.r4+1E-6):
-            self.r = self.r4
-            potential_nterms = self.potential_scalp_rad(theta)
-        else:
-            potential_nterms = np.nan
-            raise ValueError('Electrode located outside head model. Maximum r = %s µm.', self.r4, '\n your r = ', self.r)
-        potential = phi_const * potential_nterms
+        n_terms = np.zeros((len(self.r), len(p_tot)))
+        for el_point in range(len(self.r)):
+            el_rad = self.r[el_point]
+            theta_point = theta[el_point]
+            if el_rad <= self.r1:
+                # print 'rad brain', self.r, self.r1
+                # potential_nterms = self.potential_brain_rad(theta)
+                n_terms[el_point] = self.potential_brain_rad(el_rad, theta_point)
+            elif el_rad <= self.r2:
+                # print 'rad csf'
+                # potential_nterms = self.potential_csf_rad(theta)
+                n_terms[el_point] = self.potential_csf_rad(el_rad, theta_point)
+            elif el_rad <= self.r3:
+                # print 'rad skull'
+                # potential_nterms = self.potential_skull_rad(theta[el_point])
+                n_terms[el_point] = self.potential_skull_rad(el_rad, theta_point)
+            elif el_rad <= (self.r4):
+                # print 'rad scalp'
+                # potential_nterms = self.potential_scalp_rad(theta)
+                n_terms[el_point] = self.potential_scalp_rad(el_rad, theta_point)
+            elif el_rad <= (self.r4+1E-6):
+                el_rad = self.r4
+                # potential_nterms = self.potential_scalp_rad(theta)
+                n_terms[el_point] = self.potential_scalp_rad(el_rad, theta_point)
+            else:
+                # potential_nterms = np.nan
+                n_terms[el_point] = np.nan
+                raise ValueError('Electrode located outside head model. Maximum r = %s µm.', self.r4, '\n your r = ', self.r)
+        potential = phi_const * n_terms
         return potential
 
     def calc_tan_potential(self, p_tan):
@@ -153,28 +158,37 @@ class CalcPotential4Sphere:
         theta = self.calc_theta()
         phi = self.calc_phi(p_tan)
         p_tot = np.linalg.norm(p_tan, axis=1)
+        print 'p_tan_tot', p_tot
+        print 'phi', phi, phi.shape
+        print 'p_tot*phi', p_tot*phi
         phi_hom = - p_tot / (4 * np.pi * self.sigma1 * self.rz ** 2) * np.sin(phi) * self.k1
-        if self.r <= self.r1:
-            # print 'tan brain'
-            potential_nterms = self.potential_brain_tan(theta)
-        elif self.r <= self.r2:
-            # print 'tan csf'
-            potential_nterms = self.potential_csf_tan(theta)
-        elif self.r <= self.r3:
-            # print 'tan skull'
-            potential_nterms = self.potential_skull_tan(theta)
-        elif self.r <= self.r4:
-            # print 'tan scalp'
-            potential_nterms = self.potential_scalp_tan(theta)
-        else:
-            potential_nterms = np.nan
+        print 'phi_hom', phi_hom, phi_hom.shape
+        n_terms = np.zeros((len(self.r), len(p_tot)))
+        for el_point in range(len(self.r)):
+            el_rad = self.r[el_point]
+            theta_point = theta[el_point]
+            if el_rad <= self.r1:
+                # print 'tan brain'
+                n_terms[el_point] = self.potential_brain_tan(el_rad, theta_point)
+            elif el_rad <= self.r2:
+                # print 'tan csf'
+                n_terms[el_point] = self.potential_csf_tan(el_rad, theta_point)
+            elif el_rad <= self.r3:
+                # print 'tan skull'
+                n_terms[el_point] = self.potential_skull_tan(el_rad, theta_point)
+            elif el_rad <= self.r4:
+                # print 'tan scalp'
+                n_terms[el_point] = self.potential_scalp_tan(el_rad, theta_point)
+            else:
+                n_terms[el_point] = np.nan
             # raise ValueError('Electrode located outside head model. Maximum r = %s µm.', self.r4)
 
-        potential = phi_hom * potential_nterms
+        potential = phi_hom * n_terms
         return potential
 
     def calc_theta(self):
-        """Calculate theta and phi for radial dipole"""
+        """We define z-axis in the direction of the radial part of the dipole,
+        which means that the z-axis == the rz-vector."""
         cos_theta = np.dot(self.rxyz, self.rzloc) / (np.linalg.norm(self.rxyz, axis=1) * np.linalg.norm(self.rzloc))
         cos_theta = np.nan_to_num(cos_theta)
         theta = np.arccos(cos_theta)
@@ -182,37 +196,33 @@ class CalcPotential4Sphere:
 
     def calc_phi(self, p):
         """Calculate phi-angles for tangential dipole."""
-        proj_rxyz_rz = np.dot(self.rxyz, self.rzloc) / np.sum(self.rzloc ** 2) * self.rzloc
+        proj_rxyz_rz = (np.dot(self.rxyz, self.rzloc) / np.sum(self.rzloc ** 2)).reshape(len(self.rxyz),1) * self.rzloc.reshape(1,3)
         rxy = self.rxyz - proj_rxyz_rz
-        rx = (np.cross(p, self.rzloc).T/(np.linalg.norm(p, axis=1) * self.rz)).T
-        cos_phi = np.dot(rx, rxy) / (np.linalg.norm(rxy) * np.linalg.norm(rx, axis=1))
+        rx = np.cross(p, self.rzloc)
+        cos_phi = np.dot(rxy, rx.T)/np.dot(np.linalg.norm(rxy, axis=1).reshape(len(rxy),1),np.linalg.norm(rx, axis=1).reshape(1, len(rx)))
         cos_phi = np.nan_to_num(cos_phi)
         phi_wrong_sign = np.arccos(cos_phi)
-
         phi = phi_wrong_sign
-        sign_test = np.dot(p, self.rxyz)/(self.r*np.linalg.norm(p, axis=1))
-        for i in range(len(p)):
-            if sign_test[i] < 0:
-                phi[i] = 2*np.pi - phi_wrong_sign[i]
+        sign_test = np.dot(rxy, p.T)  # /(np.linalg.norm(self.rxyz, axis=1).reshape(len(self.rxyz),1)*np.linalg.norm(rx, axis=1).reshape(1, len(rx)))
+        for i in range(len(self.r)):
+            for j in range(len(p)):
+                if sign_test[i,j] < 0:
+                    phi[i,j] = 2*np.pi - phi_wrong_sign[i,j]
         return phi
 
-
     def sign_rad_dipole(self, p):
-        """Flip radial dipole pointing inwards, and add a -1
-        to the s-vector, so that the potential can be
+        """Flip radial dipole pointing inwards (i.e. we only use p_tot),
+        and add a -1 to the s-vector, so that the potential can be
         calculated as if the dipole were pointing outwards,
         and later be multiplied by -1 to get the right potential."""
         sign_vector = np.ones(len(p))
-        print 'sign_vector before loop:', sign_vector
         radial_test = np.dot(p, self.rzloc) / (np.linalg.norm(p, axis=1) * self.rz)
         for i in range(len(p)):
             if np.abs(radial_test[i] + 1) < 10 ** -8:
-                # print p[i], np.dot(p, self.rzloc)
                 sign_vector[i] = -1.
-        print 'sign_vector after loop', sign_vector
         return sign_vector
 
-    def potential_brain_rad(self, theta):
+    def potential_brain_rad(self, r, theta):
         """Calculate sum with constants and legendres
         Parameters
         __________
@@ -225,47 +235,48 @@ class CalcPotential4Sphere:
                 Sum factor containing brain constants, dipole and
                 electrode locations and legendre polynomials.
         """
+
         n = np.arange(1, 100)
         c1n = self.calc_c1n(n)
-        consts = n*(c1n * (self.r / self.r1) ** n + (self.rz / self.r) ** (n + 1))
+        consts = n*(c1n * (r / self.r1) ** n + (self.rz / r) ** (n + 1))
         consts = np.insert(consts, 0, 0)
         leg_consts = np.polynomial.legendre.Legendre(consts)
         pot_sum = leg_consts(np.cos(theta))
         return pot_sum
 
-    def potential_csf_rad(self, theta):
+    def potential_csf_rad(self, r, theta):
         n = np.arange(1,100)
         c2n = self.calc_c2n(n)
         d2n = self.calc_d2n(n, c2n)
-        consts = n*(c2n * (self.r / self.r2) ** n + d2n * (self.r2 / self.r) ** (n + 1))
+        consts = n*(c2n * (r / self.r2) ** n + d2n * (self.r2 / r) ** (n + 1))
         consts = np.insert(consts, 0, 0)
         leg_consts = np.polynomial.legendre.Legendre(consts)
         pot_sum = leg_consts(np.cos(theta))
         return pot_sum
 
-    def potential_skull_rad(self, theta):
+    def potential_skull_rad(self, r, theta):
         n = np.arange(1,100)
         c3n = self.calc_c3n(n)
         d3n = self.calc_d3n(n, c3n)
-        consts = n*(c3n * (self.r / self.r3) ** n + d3n * (self.r3 / self.r) ** (n + 1))
+        consts = n*(c3n * (r / self.r3) ** n + d3n * (self.r3 / r) ** (n + 1))
         consts = np.insert(consts, 0, 0)
         leg_consts = np.polynomial.legendre.Legendre(consts)
         pot_sum = leg_consts(np.cos(theta))
         return pot_sum
 
-    def potential_scalp_rad(self, theta):
+    def potential_scalp_rad(self, r, theta):
         """Calculate potential in scalp from radial dipole.
         """
         n = np.arange(1,100)
         c4n = self.calc_c4n(n)
         d4n = self.calc_d4n(n, c4n)
-        consts = n*(c4n * (self.r / self.r4) ** n + d4n * (self.r4 / self.r) ** (n + 1))
+        consts = n*(c4n * (r / self.r4) ** n + d4n * (self.r4 / r) ** (n + 1))
         consts = np.insert(consts, 0, 0)
         leg_consts = np.polynomial.legendre.Legendre(consts)
         pot_sum = leg_consts(np.cos(theta))
         return pot_sum
 
-    def potential_brain_tan(self, theta):
+    def potential_brain_tan(self, r, theta):
         """Calculate sum with constants and legendres
         Parameters
         __________
@@ -283,11 +294,11 @@ class CalcPotential4Sphere:
         """
         n = np.arange(1,100)
         c1n = self.calc_c1n(n)
-        consts = (c1n * (self.r / self.r1) ** n + (self.rz / self.r) ** (n + 1))
+        consts = (c1n * (r / self.r1) ** n + (self.rz / r) ** (n + 1))
         pot_sum = np.sum([c*lpmv(1, i, np.cos(theta)) for c,i in zip(consts,n)])
         return pot_sum
 
-    def potential_csf_tan(self, theta):
+    def potential_csf_tan(self, r, theta):
         """Calculate sum with constants and legendres
         Parameters
         __________
@@ -306,11 +317,11 @@ class CalcPotential4Sphere:
         n = np.arange(1,100)
         c2n = self.calc_c2n(n)
         d2n = self.calc_d2n(n, c2n)
-        consts = c2n*(self.r/self.r2)**n + d2n*(self.r2/self.r)**(n+1)
+        consts = c2n*(r/self.r2)**n + d2n*(self.r2/r)**(n+1)
         pot_sum = np.sum([c*lpmv(1, i, np.cos(theta)) for c,i in zip(consts,n)])
         return pot_sum
 
-    def potential_skull_tan(self, theta):
+    def potential_skull_tan(self, r, theta):
         """Calculate sum with constants and legendres
         Parameters
         __________
@@ -329,11 +340,11 @@ class CalcPotential4Sphere:
         n = np.arange(1,100)
         c3n = self.calc_c3n(n)
         d3n = self.calc_d3n(n, c3n)
-        consts = c3n*(self.r/self.r3)**n + d3n*(self.r3/self.r)**(n+1)
+        consts = c3n*(r/self.r3)**n + d3n*(self.r3/r)**(n+1)
         pot_sum = np.sum([c*lpmv(1, i, np.cos(theta)) for c,i in zip(consts,n)])
         return pot_sum
 
-    def potential_scalp_tan(self, theta):
+    def potential_scalp_tan(self, r, theta):
         """Calculate sum with constants and legendres
         Parameters
         __________
@@ -352,7 +363,7 @@ class CalcPotential4Sphere:
         n = np.arange(1,100)
         c4n = self.calc_c4n(n)
         d4n = self.calc_d4n(n, c4n)
-        consts = c4n*(self.r/self.r4)**n + d4n*(self.r4/self.r)**(n+1)
+        consts = c4n*(r/self.r4)**n + d4n*(self.r4/r)**(n+1)
         pot_sum = np.sum([c*lpmv(1, i, np.cos(theta)) for c,i in zip(consts,n)])
         return pot_sum
 

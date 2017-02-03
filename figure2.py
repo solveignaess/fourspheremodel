@@ -10,14 +10,10 @@ and numerically with FEM.'''
 
 plt.close('all')
 
-# load scalp potentials from eeg simulations
-# eeg_rad = np.load('./results/eeg_radial.npz')
-# eeg_tan = np.load('./results/eeg_tangential.npz')
-# eeg_mix = np.load('./results/eeg_mix.npz')
 eeg_mix200000 = np.load('./results/eeg_mix200000.npz')
 eeg_rad200000 = np.load('./results/eeg_rad200000.npz')
 eeg_tan200000 = np.load('./results/eeg_tan200000.npz')
-# files = [eeg_rad, eeg_tan , eeg_mix]
+
 files = [eeg_rad200000, eeg_tan200000, eeg_mix200000]
 
 # create array with 2D electrode positions for plotting geometry
@@ -54,6 +50,7 @@ v = np.linspace(0, np.pi, 100)
 X = (r-1e2) * np.outer(np.cos(u), np.sin(v))
 Y = (r-1e2) * np.outer(np.sin(u), np.sin(v))
 Z = (r-1e2) * np.outer(np.ones(np.size(u)), np.cos(v))
+el_points = np.array([[X.flatten()[i], Y.flatten()[i], Z.flatten()[i]] for i in range(len(X.flatten()))])
 
 # compute eeg analytically,
 # compute absolute error between analytical and fem calculation
@@ -63,7 +60,7 @@ error_list = [np.zeros(X.shape), np.zeros(X.shape), np.zeros(X.shape)]
 P1s = []
 rz1s = []
 phi_fem_list = []
-k = 1e-6# convert nV to mV
+k = 1e-6  # convert nV to mV
 for idx, f in enumerate(files):
     param_dict = f['params'].item()
 
@@ -77,14 +74,11 @@ for idx, f in enumerate(files):
     r = param_dict['radii'][3]
     radii = param_dict['radii']
     sigmas = param_dict['sigmas']
-    phi_4s = phi_4s_list[idx]
-    error = error_list[idx]
-    for i in range(X.shape[0]):
-        for j in range(X.shape[1]):
-            sphere_mod = CalcPotential4Sphere(radii, sigmas, np.array([X[i,j], Y[i,j], Z[i,j]]), rz1)
-            pot = sphere_mod.calc_potential(P1)*k
-            phi_4s[i,j] = np.nan_to_num(pot)
-            error[i,j] = np.abs(phi_4s[i,j] - fem_phi[i,j])
+    sphere_mod = CalcPotential4Sphere1(radii, sigmas, el_points, rz1)
+    phi_4s = sphere_mod.calc_potential(P1).reshape(X.shape)*k
+    error = np.abs(phi_4s - fem_phi)
+    phi_4s_list[idx] = phi_4s
+    error_list[idx] = error
     print 'error max:', np.max(np.abs(error))
 
 # create color lists for plotting of potentials and error
@@ -261,4 +255,5 @@ fig.text(0.75, .34, 'L',
 
 
 fig.set_size_inches(9., 6.)
-plt.savefig('./results/eeg_fig200000.pdf', dpi=600., bbox_inches='tight')
+
+plt.savefig('./results/eeg_fig200000_new.pdf', dpi=600., bbox_inches='tight')
