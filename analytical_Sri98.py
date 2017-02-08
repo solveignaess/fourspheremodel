@@ -106,19 +106,19 @@ def compute_phi(s12, s23, s34, dp_rad, dp_tan):
     cos_theta = np.cos(params.theta_r)
 
     # radial
-    n_coef = n * coef
+    n_coef = coef
     rad_coef = np.insert(n_coef, 0, 0)
     Lprod = np.polynomial.legendre.Legendre(rad_coef)
     Lfactor_rad = Lprod(cos_theta)
     rad_phi = dp_rad * Lfactor_rad
 
-    # #tangential
-    Lfuncprod = []
-    for tt in range(params.theta_r.size):
-        Lfuncprod.append(np.sum([C * lpmv(1, P, cos_theta[tt])
-                                 for C, P in zip(coef, n)]))
-    tan_phi = -1 * dp_tan * np.sin(params.phi_angle_r) * np.array(Lfuncprod)
-    return (rad_phi + tan_phi) / (4 * np.pi * params.sigma_brain * (rz**2))
+    # # #tangential
+    # Lfuncprod = []
+    # for tt in range(params.theta_r.size):
+    #     Lfuncprod.append(np.sum([C * lpmv(1, P, cos_theta[tt])
+    #                              for C, P in zip(coef, n)]))
+    # tan_phi = -1 * dp_tan * np.sin(params.phi_angle_r) * np.array(Lfuncprod)
+    return (rad_phi ) / (params.sigma_brain)
 
 
 # scalp_rad = scalp_rad - rad_tol
@@ -144,6 +144,7 @@ print 'Now computing for dipole using Srinivasan98: ', dipole['name']
 src_pos = dipole['src_pos']
 snk_pos = dipole['snk_pos']
 dp_rad, dp_tan = decompose_dipole(I)
+print 'Not evaluating the tangential component'
 
 s12, s23, s34 = conductivity(params.sigma_skull20)
 phi_20 = compute_phi(s12, s23, s34, dp_rad, dp_tan)
