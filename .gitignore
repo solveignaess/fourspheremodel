@@ -1,0 +1,5 @@
+# python compile sources
+*.pyc
+
+# dolfin mesh sources
+*.xml

@@ -45,44 +45,53 @@ Function CheeseHole
 
 Return
 
-
-lcar3 = .1;
-x = 0.; y= 0.; z=0.; r=7.9; t=1;
+lcar3 = 1.5;
+x = 0.; y= 0.; z=0.; r=6.0; t=1;
 Call CheeseHole ;
-brainsurf = news;
-Physical Surface (brainsurf) = {l8+1,l5+1,l1+1,l2+1,l3+1,l7+1,l6+1,l4+1}; 
-brainvolume = newreg;
-Volume(brainvolume) = {theloops[1]};
-brainvol = newreg;
-Physical Volume (brainvol) = brainvolume;
+whitemattersurf = news;
+Physical Surface (whitemattersurf) = {l8+1,l5+1,l1+1,l2+1,l3+1,l7+1,l6+1,l4+1}; 
+whitemattervolume = newreg;
+Volume(whitemattervolume) = {theloops[1]};
+whitemattervol = newreg;
+Physical Volume (whitemattervol) = whitemattervolume;
 
-lcar3 = .05;
-x = 0.; y= 0.; z=0.; r=8.; t=2;
+lcar3 = .08;
+x = 0.; y= 0.; z=0.; r=7.9; t=2;
+Call CheeseHole ;
+graymattersurf = news;
+Physical Surface (graymattersurf) = {l8+1,l5+1,l1+1,l2+1,l3+1,l7+1,l6+1,l4+1}; 
+graymattervolume = newreg;
+Volume(graymattervolume) = {theloops[2], theloops[1]};
+graymattervol = newreg;
+Physical Volume (graymattervol) = graymattervolume;
+
+lcar3 = .03;
+x = 0.; y= 0.; z=0.; r=8.; t=3;
 Call CheeseHole ;
 csfsurf = news;
 Physical Surface (csfsurf) = {l8+1,l5+1,l1+1,l2+1,l3+1,l7+1,l6+1,l4+1}; 
 csfvolume = newreg;
-Volume(csfvolume) = {theloops[2], theloops[1]};
+Volume(csfvolume) = {theloops[3], theloops[2]};
 csfvol = newreg;
 Physical Volume (csfvol) = csfvolume;
 
 lcar3 = .25;
-x = 0.; y= 0.; z=0.; r=8.5; t=3;
+x = 0.; y= 0.; z=0.; r=8.5; t=4;
 Call CheeseHole ;
 skullsurf = news;
 Physical Surface (skullsurf) = {l8+1,l5+1,l1+1,l2+1,l3+1,l7+1,l6+1,l4+1}; 
 skullvolume = newreg;
-Volume(skullvolume) = {theloops[3], theloops[2]};
+Volume(skullvolume) = {theloops[4], theloops[3]};
 skullvol = newreg;
 Physical Volume (skullvol) = skullvolume;
 
 lcar3 = .25;
-x = 0.; y= 0.; z=0.; r=9.; t=4;
+x = 0.; y= 0.; z=0.; r=9.; t=5;
 Call CheeseHole ;
 scalpsurf = news;
 Physical Surface (scalpsurf) = {l8+1,l5+1,l1+1,l2+1,l3+1,l7+1,l6+1,l4+1}; 
 scalpvolume = newreg;
-Volume(scalpvolume) = {theloops[4], theloops[3]};
+Volume(scalpvolume) = {theloops[5], theloops[4]};
 scalpvol = newreg;
 Physical Volume (scalpvol) = scalpvolume;
 
