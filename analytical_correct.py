@@ -138,11 +138,8 @@ def compute_phi(s12, s23, s34, I):
     sign_rad = np.sign(np.dot(P, dp_loc))
     mag_rad = sign_rad * np.linalg.norm(dp_rad)
     mag_tan = np.linalg.norm(dp_tan)  # sign_tan * np.linalg.norm(dp_tan)
-    # print dp_rad, dp_tan
-    # print mag_rad, mag_tan
+
     coef = H(n)
-    # print np.all(np.isclose(adjusted_theta, params.theta_r))
-    # print params.theta_r, adjusted_theta
     cos_theta = np.cos(adjusted_theta)
 
     # radial
@@ -150,7 +147,6 @@ def compute_phi(s12, s23, s34, I):
     rad_coef = np.insert(n_coef, 0, 0)
     Lprod = np.polynomial.legendre.Legendre(rad_coef)
     Lfactor_rad = Lprod(cos_theta)
-
     rad_phi = mag_rad * Lfactor_rad
 
     # #tangential
@@ -200,31 +196,56 @@ for dipole in params.dipole_list:
     np.savez(f, phi_20=phi_20, phi_40=phi_40, phi_80=phi_80, phi_lim=phi_lim)
     f.close()
 
+# s12, s23, s34 = conductivity(params.sigma_skull20)
+# phis = []
+
+# dipole = params.dipole_list[0]
+# src_pos = dipole['src_pos']
+# snk_pos = dipole['snk_pos']
+# phis.append(compute_phi(s12, s23, s34, I))
+
+# dipole = params.dipole_list[1]
+# src_pos = dipole['src_pos']
+# snk_pos = dipole['snk_pos']
+# phis.append(compute_phi(s12, s23, s34, I))
 
 # dipole = params.dipole_list[2]
 # src_pos = dipole['src_pos']
 # snk_pos = dipole['snk_pos']
+# phis.append(compute_phi(s12, s23, s34, I))
 
 # src_pos = [-0.05, 0., 7.8]  # y = 0 plane
 # snk_pos = [0.05, 0., 7.8]
+# phis.append(compute_phi(s12, s23, s34, I))
 
 # src_pos = [0, -0.05, 7.8]  # x = 0 plane
 # snk_pos = [0, 0.05, 7.8]
+# phis.append(compute_phi(s12, s23, s34, I))
 
 # src_pos = [0.05, 7.8, 0]  # z = 0 plane
 # snk_pos = [-0.05, 7.8, 0]
+# phis.append(compute_phi(s12, s23, s34, I))
 
 # src_pos = [7.8, -0.05, 0]  # z = 0 plane
 # snk_pos = [7.8, 0.05, 0]
+# phis.append(compute_phi(s12, s23, s34, I))
 
 # src_pos = [7.85, 0.0, 0.0]  # radian along x
 # snk_pos = [7.75, 0.0, 0.0]
+# phis.append(compute_phi(s12, s23, s34, I))
 
 # src_pos = [0.0, 7.85, 0.0]  # radial along y
 # snk_pos = [0.0, 7.75, 0.0]
+# phis.append(compute_phi(s12, s23, s34, I))
 
 # src_pos = [0.0, 0.0, 7.75]  # radian along z
 # snk_pos = [0.0, 0.0, 7.85]
+# phis.append(compute_phi(s12, s23, s34, I))
+
+# f = open(os.path.join('./results/Analytical_correct_all.npz'), 'w')
+# np.savez(f, phis[0],phis[1],phis[2],phis[3],phis[4],phis[5],phis[6],phis[7], phis[8], phis[9])
+# f.close()
+
 
 # s12, s23, s34 = conductivity(params.sigma_skull20)
 # phi_20 = compute_phi(s12, s23, s34, I)

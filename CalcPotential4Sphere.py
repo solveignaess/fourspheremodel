@@ -13,7 +13,7 @@ class CalcPotential4Sphere:
 
     def __init__(self, radii, sigmas, r, rz):
 
-        self.k1 = 1E6  # from mV to nV
+        self.k1 = 1. #1E6  # from mV to nV
         self.r1 = radii[0]
         self.r2 = radii[1]
         self.r3 = radii[2]
@@ -466,3 +466,104 @@ class CalcPotential4Sphere:
     def calc_d4n(self, n, c4):
         d4 = n / (n + 1) * c4
         return d4
+
+
+if __name__ == '__main__':
+    import parameters as params
+    fle = np.load('./results/eeg_rad200000.npz')
+    param_dict = fle['params'].item()
+
+    radii = param_dict['radii']
+    sigmas = [params.sigma_brain, params.sigma_csf,
+              params.sigma_skull20, params.sigma_scalp]  # param_dict['sigmas']
+    el_points = params.ele_coords
+    charge_pos = [ii / 10000. for ii in param_dict['charge_pos']]
+    charges = [-1 * ii / 200000 for ii in param_dict['charge']]
+    radii = [ii / 10000.0 for ii in radii]
+
+    print sigmas, el_points, charge_pos, charges, radii
+
+    phis = []
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+
+    dipole = params.dipole_list[0]
+    charge_pos = [np.array(dipole['src_pos']), np.array(dipole['snk_pos'])]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    dipole = params.dipole_list[1]
+    charge_pos = [np.array(dipole['src_pos']), np.array(dipole['snk_pos'])]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    dipole = params.dipole_list[2]
+    charge_pos = [np.array(dipole['src_pos']), np.array(dipole['snk_pos'])]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    src_pos = [-0.05, 0., 7.8]  # y = 0 plane
+    snk_pos = [0.05, 0., 7.8]
+    charge_pos = [np.array(src_pos), np.array(snk_pos)]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    src_pos = [0, -0.05, 7.8]  # x = 0 plane
+    snk_pos = [0, 0.05, 7.8]
+    charge_pos = [np.array(src_pos), np.array(snk_pos)]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    src_pos = [0.05, 7.8, 0]  # z = 0 plane
+    snk_pos = [-0.05, 7.8, 0]
+    charge_pos = [np.array(src_pos), np.array(snk_pos)]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    src_pos = [7.8, -0.05, 0]  # z = 0 plane
+    snk_pos = [7.8, 0.05, 0]
+    charge_pos = [np.array(src_pos), np.array(snk_pos)]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    src_pos = [7.85, 0.0, 0.0]  # radian along x
+    snk_pos = [7.75, 0.0, 0.0]
+    charge_pos = [np.array(src_pos), np.array(snk_pos)]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    src_pos = [0.0, 7.85, 0.0]  # radial along y
+    snk_pos = [0.0, 7.75, 0.0]
+    charge_pos = [np.array(src_pos), np.array(snk_pos)]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    src_pos = [0.0, 0.0, 7.75]  # radian along z
+    snk_pos = [0.0, 0.0, 7.85]
+    charge_pos = [np.array(src_pos), np.array(snk_pos)]
+    rz1 = (charge_pos[0] + charge_pos[1]) / 2
+    P1 = np.array([charge_pos[0] * charges[0] + charge_pos[1] * charges[1]])
+    sphere_mod = CalcPotential4Sphere(radii, sigmas, el_points, rz1)
+    phis.append(sphere_mod.calc_potential(P1).reshape(180, 180))
+
+    f = open('./results/CalcPotential4_correct_all.npz', 'w')
+    np.savez(f, phis[0],phis[1],phis[2],phis[3],phis[4],phis[5],phis[6],phis[7],phis[8], phis[9])
+    f.close()
