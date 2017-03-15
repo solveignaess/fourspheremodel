@@ -20,10 +20,11 @@ a more sophisticated head models and more complicated conductivity profiles.
 
 Authors
 -------
-Written by Chaitanya Chintaluri(1), Solveig Næss(2) and Torbjørn Ness(2)
+Written by Chaitanya Chintaluri(1), Solveig Næss(2) and Torbjørn Ness(3)
 
 1. Nencki Institute of Experimental Biology, Warsaw, Poland.
 2. University of Oslo, Oslo, Norway.
+3. Norwegian University of Life Sciences, Ås, Norway.
 
 License
 -------
