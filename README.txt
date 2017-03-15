@@ -1,78 +1,163 @@
-Written by Chaitanya Chintaluri, 01/12/2016
-Updated on 08/12/2016
+Description
+-----------
+
+These are the scripts to obtain the forward solution for the four sphere head
+models to obtain the EEG potentials from the point dipole sources located
+inside the brain.
+
+We implemented, the correct Analytical formulation for this, and an equivalent
+numerical Finite element model, and provide with the previously presented
+analytical methods. We validate our method Analytical and the numerical with
+each other, and compare it with the previous ones. We also test the limiting
+case when all the four spheres have the same conductivity.
+
+Our presented results can be used for placing a dipole in any orientation, and
+the electrodes at place (for analytical the electrodes must be > radial distance
+of the dipole). These can be modified in the parameters.py file. While the
+analytical solution is recommended for its fast computational time, the
+numerical solution serves as a good starting point for further improvements for
+a more sophisticated head models and more complicated conductivity profiles.
+
+Authors
+-------
+Written by Chaitanya Chintaluri(1), Solveig Næss(2) and Torbjørn Ness(2)
+
+1. Nencki Institute of Experimental Biology, Warsaw, Poland.
+2. University of Oslo, Oslo, Norway.
+
+License
+-------
+
+This software is provided under the GNU General Purpose License version 3.0,
+You will find a copy of this license within this folder.
+
+
+Packages
+--------
 
 To replicate the results obtained for the FEM use Anaconda Scientific Python
 distribution. For this, I provide my environment that can be re-created at your
-desktop.
+desktop. This file is provided as fenics27_spec.txt; assumes that you use linux-64
 
-This file is provided as fenics27_spec.txt ; assumes that you use linux-64
+To obtain this environment. In your terminal type,  
+
 conda create --name fenics27 --file fenics27_spec.txt
 source activate fenics27
 
-For the results shown in the plots in ./results/*.png the following was used.
+Read further about this from the Anaconda's managing environments webpage.
+
+Additionally, you will need 
+matplotlib python package
+gmsh 2.13.1
 
 
-1) Generate the mesh (gmsh 2.13.1 to create a .msh file from .geo, and dolfin
+Files and work flow
+-------------------
+
+1) Generate the mesh (USE gmsh 2.13.1 to create a .msh file from .geo, and dolfin
 to create .xml files from .msh)
 
 cd mesh
 sh mesh_it_wm.sh
 ***NOW YOU WAIT***
 
-2) Run FEM model
+2) Finite Element Method
 
 cd ..
-python fem_4shell_wm.py
+python numerical_fem.py
 ***NOW YOU WAIT***
+(uses params from parameters.py)
+(gets you ./results/Numerical_*.npz ; * is rad, tan, mix)
 
-(uses params from parameters_wm.py)
-(gets you ./results/4Shell_FEM_*_wm.npy)
+Computes the potentials on the scalp hemisphere for the cases of 
+skull sigma = scalp sigma / 20; "fem_20"
+skull sigma = scalp sigma / 40; "fem_40"
+skull sigma = scalp sigma / 80; "fem_80"
 
-3) Analytical methods from Nunez, Appendix G
+For the radial, tangential and the 45 deg. oriented dipole
 
-python analytical_4Shell_Nunez.py
+3) Analytical methods from Nunez and Srinivasan '06, Appendix G
 
-(uses params from parameters_wm.py)
-(gets you ./results/phi_*.npy)
+python analytical_NunSri06.py
+(uses params from parameters.py)
+(gets you ./results/Analytical_NunSri06_rad.npz)
 
-4)Corrections by Solveig for Nunez Appendix G
+Computes the potentials on the scalp hemisphere for the cases of 
+skull sigma = scalp sigma / 20; "phi_20"
+skull sigma = scalp sigma / 40; "phi_40"
+skull sigma = scalp sigma / 80; "phi_80"
+All sigmas equal, case; "phi_lim"
 
-python analytical_4Shell_Nunez_c.py
+For the radial dipole ONLY.
 
-(uses params from parameters_wm.py)
-(gets you ./results/phi_*_c.npy)
+4) Analytical methods from Srinivasan '98, Appendix
+
+python analytical_Sri98.py
+(uses params from parameters.py)
+(gets you ./results/Analytical_Sri98_rad.npz)
+
+Computes the potentials on the scalp hemisphere for the cases of 
+skull sigma = scalp sigma / 20; "phi_20"
+skull sigma = scalp sigma / 40; "phi_40"
+skull sigma = scalp sigma / 80; "phi_80"
+All sigmas equal, case; "phi_lim"
+
+For the radial dipole ONLY.
+
+5) Analytical methods, Corrected solution
+
+python analytical_correct.py !!!!***!!!!
+(uses params from parameters.py)
+(gets you ./results/Analytical_*.npz; *  is rad, tan, mix)
+
+Computes the potentials on the scalp hemisphere for the cases of 
+skull sigma = scalp sigma / 20; "fem_20"
+skull sigma = scalp sigma / 40; "fem_40"
+skull sigma = scalp sigma / 80; "fem_80"
+
+For the radial, tangential and the 45 deg. oriented dipole
+
+!!!!***!!!!
+Alternate implementation available for this.
+
+python CalcPotential4Sphere.py
+(Self contained)
+
 
 5) Make plots! 
+source deactivate # matplotlib not available within the conda environment.
 
-source deactivate
-python plot_potentials.py
+(i)
+python figure2.py !!!!***!!!!
+Compares that the analytical solution and the FEM solution have converged
 
-(uses phi_*.npy, phi_*_c.npy, and 4Shell_FEM_*_wm.npy)
-(gets you *.png)
+!!!!***!!!!
+An alternate view of this plot available see,
+python figure2_alt.py
 
-NOTES:
+(ii)
+python figure3.py
 
-1) fem_4shell.py; ./mesh/sphere_4.geo; ./mesh/mesh_it.geo
-Can be used as before, but the meshes generated do not produce convergence to
-the analytical solution for the 40 and 80 cases.
+Compares the previous methods to the proposed solution.
 
-This is resolved by making another sphere inside the brain sphere, called wm
-(analogous to white matter) but with the same conductivity as the brain. The
-only difference is that the mesh sizes in wm are coarse - this resolves the
-mis match with the analytical solution.
+(iii)
+python figure4.py
 
-The resulting files are ./results/4Shell_FEM_*.npy (**no _wm**)
+Compares the limiting case of all equal conductivity for the analytical
+methods.
 
-2) ./mesh/sphere_4_wm_high_res.geo (and change ./mesh_it_wm.geo and
-fem_4shell_wm.py accordingly)
+(iv)
+python plot_test.py
 
-This mesh is used to establish that the numerical method has converged. By
-increasing the fine-ness of the mess, and obtaining the results, the fine (high
-resolution) are compared with the coarse resolution results 
+Compares the two analytical solution implementation for the various
+configurations of the dipole orientations.
 
-These results are presented in ./results/4Shell_FEM_*_wm_high_res.npy
+NOTES
+-----
 
-The differences between 4Shell_FEM_*_wm_high_res.npy and the corresponding
-4Shell_FEM_*_wm.npy is ~ 1e-5.
+The mesh used ./mesh/sphere_4.geo actually has 5 spheres instead of 4.
+The inner most sphere is there for the sake of simplifying the mesh size and
+the convergence time for the FEM simulation.
 
-
+A lower resolution of this mesh is also available ./mesh/sphere_4_lowres.geo
+which establishes the convergence of the solution.
