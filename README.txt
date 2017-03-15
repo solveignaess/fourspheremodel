@@ -28,9 +28,11 @@ Written by Chaitanya Chintaluri(1), Solveig Næss(2) and Torbjørn Ness(3)
 
 License
 -------
+Copyright 2017 Chaitanya Chintaluri, Solveig Næss, and Torbjørn Ness
 
 This software is provided under the GNU General Purpose License version 3.0,
-You will find a copy of this license within this folder.
+You will find a copy of this license within this folder, or from online here: 
+https://www.gnu.org/licenses/gpl-3.0.txt
 
 
 Packages
