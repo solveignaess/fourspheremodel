@@ -5,11 +5,10 @@ from plotting_convention import mark_subplots, simplify_axes
 import parameters as params
 
 # Homogeneous infinite medium
-I = 1. # 200000.
+k = 100. # scaling factor --> give results in ~10 micro V
+I = 1.*k
 d = .1
 phi_0 = I*d / (4*np.pi*params.sigma_brain*(params.scalp_rad**2))
-# print phi_0
-# k = 1e-6  # convert from nV to mV
 
 theta = params.theta.reshape(180, 180)[:, 0][0:90]
 
@@ -22,20 +21,20 @@ sri98 = np.load(os.path.join('results', 'Analytical_Sri98_rad.npz'))
 analytical = np.load(os.path.join('results', 'Analytical_rad.npz'))
 numerical = np.load(os.path.join('results', 'Numerical_rad.npz'))
 
-phi_20 = nunsri06['phi_20'].reshape(180, 180)[:, 0][0:90]
-phi_20_98 = sri98['phi_20'].reshape(180, 180)[:, 0][0:90]
-phi_20_c = analytical['phi_20'].reshape(180, 180)[:, 0][0:90]
-num_20 = numerical['fem_20'].reshape(180, 180)[:, 0][0:90]
+phi_20 = nunsri06['phi_20'].reshape(180, 180)[:, 0][0:90]*k
+phi_20_98 = sri98['phi_20'].reshape(180, 180)[:, 0][0:90]*k
+phi_20_c = analytical['phi_20'].reshape(180, 180)[:, 0][0:90]*k
+num_20 = numerical['fem_20'].reshape(180, 180)[:, 0][0:90]*k
 
-phi_40 = nunsri06['phi_40'].reshape(180, 180)[:, 0][0:90]
-phi_40_98 = sri98['phi_40'].reshape(180, 180)[:, 0][0:90]
-phi_40_c = analytical['phi_40'].reshape(180, 180)[:, 0][0:90]
-num_40 = numerical['fem_40'].reshape(180, 180)[:, 0][0:90]
+phi_40 = nunsri06['phi_40'].reshape(180, 180)[:, 0][0:90]*k
+phi_40_98 = sri98['phi_40'].reshape(180, 180)[:, 0][0:90]*k
+phi_40_c = analytical['phi_40'].reshape(180, 180)[:, 0][0:90]*k
+num_40 = numerical['fem_40'].reshape(180, 180)[:, 0][0:90]*k
 
-phi_80 = nunsri06['phi_80'].reshape(180, 180)[:, 0][0:90]
-phi_80_98 = sri98['phi_80'].reshape(180, 180)[:, 0][0:90]
-phi_80_c = analytical['phi_80'].reshape(180, 180)[:, 0][0:90]
-num_80 = numerical['fem_80'].reshape(180, 180)[:, 0][0:90]
+phi_80 = nunsri06['phi_80'].reshape(180, 180)[:, 0][0:90]*k
+phi_80_98 = sri98['phi_80'].reshape(180, 180)[:, 0][0:90]*k
+phi_80_c = analytical['phi_80'].reshape(180, 180)[:, 0][0:90]*k
+num_80 = numerical['fem_80'].reshape(180, 180)[:, 0][0:90]*k
 
 fig = plt.figure(figsize=(12, 4))
 fig.subplots_adjust(wspace = 0.28, bottom=0.15, left=0.08, right=0.99)
@@ -43,12 +42,13 @@ fig.subplots_adjust(wspace = 0.28, bottom=0.15, left=0.08, right=0.99)
 # ylim = [-0.050000000000000003, 0.25000000000000006]
 # xlim = [0., 80.00000000000000003]
 
-ylim = [-0.050000000000000003, 1.25000000000000006]
+ylim = [-4.99999999999, 110.000000000000000001]
 xlim = [0., 80.00000000000000003]
 
 ax = plt.subplot(131, ylim=ylim, xlim=xlim)
 ax.set_title(r'$\sigma_{\mathrm{skull}} = \sigma_{\mathrm{brain}} / 20$', fontsize=17)
-ax.set_ylabel('Potential (mV)', fontsize=14)
+# ax.set_ylabel('Potential (mV)', fontsize=14)
+ax.set_ylabel(r'Potential ($\mathrm{\mu V}$)', fontsize=14)
 plt.plot(theta, phi_20, 'k', lw=2)
 plt.plot(theta, phi_20_98, 'g', lw=2)
 plt.plot(theta[:50], phi_20_fit[:50], 'm+', lw=2)
@@ -56,6 +56,9 @@ plt.plot(theta, phi_20_c, 'b', lw=2)
 plt.plot(theta, num_20, 'r.', lw=2)
 ax.set_xticks(ax.get_xticks()[::2])
 ax.tick_params(labelsize=15.)
+ax.set_yticks(np.linspace(0, 110, 12))
+ax.set_yticklabels(['0', '', '20', '', '40', '', '60', '', '80', '',
+                    '100', ''])
 
 ax = plt.subplot(132, ylim=ylim, xlim=xlim)
 ax.set_xlabel('Polar angle (degrees)', fontsize=14)
@@ -67,6 +70,9 @@ plt.plot(theta, phi_40_c, 'b', lw=2)
 plt.plot(theta, num_40, 'r.', lw=2)
 ax.set_xticks(ax.get_xticks()[::2])
 ax.tick_params(labelsize=15.)
+ax.set_yticks(np.linspace(0, 110, 12))
+ax.set_yticklabels(['0', '', '20', '', '40', '', '60', '', '80', '',
+                    '100', ''])
 
 ax = plt.subplot(133, ylim=ylim, xlim=xlim)
 ax.set_title(r'$\sigma_{\mathrm{skull}} = \sigma_{\mathrm{brain}} / 80$', fontsize=17)
@@ -77,6 +83,9 @@ l4, = plt.plot(theta, phi_80_c, 'b', lw=2)
 l5, = plt.plot(theta, num_80, 'r.', lw=2)
 ax.set_xticks(ax.get_xticks()[::2])
 ax.tick_params(labelsize=15.)
+ax.set_yticks(np.linspace(0, 110, 12))
+ax.set_yticklabels(['0', '', '20', '', '40', '', '60', '', '80', '',
+                    '100', ''])
 
 lines = [l1, l2, l3, l4, l5]
 line_names = ['Srinivasan (1998)', 'Nunez & Srinivasan (2006)',
@@ -85,5 +94,5 @@ fig.legend(lines, line_names, frameon=False, ncol=1, bbox_to_anchor=[1.01, 0.85]
 
 simplify_axes(fig.axes)
 mark_subplots(fig.axes, ypos=1.07, xpos=-0.)
-#plt.savefig(os.path.join('results', 'Potentials3.png'), dpi=150)
-plt.show()
+plt.savefig(os.path.join('results', 'Potentials_scaled.png'), dpi=150)
+# plt.show()

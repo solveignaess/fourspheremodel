@@ -66,7 +66,8 @@ def B4(n):
 def H(n, r_ele=params.scalp_rad):
     if r_ele < params.brain_rad:
         T1 = ((r_ele / params.brain_rad)**n) * A1(n)
-        T2 = ((rz / r_ele)**(n + 1))
+        T2 = np.zeros(T1.shape)
+        # T2 = ((rz / r_ele)**(n + 1))
     elif r_ele < params.csftop_rad:
         T1 = ((r_ele / params.csftop_rad)**n) * A2(n)
         T2 = ((params.csftop_rad / r_ele)**(n + 1)) * B2(n)
@@ -192,6 +193,6 @@ s12 = s23 = s34 = 1.
 phi_lim = compute_phi(s12, s23, s34, I)
 
 f = open(os.path.join('results',
-                      'Analytical_Sri98_' + dipole['name'] + '.npz'), 'w')
+                      'Analytical_Sri98_no_bn1_' + dipole['name'] + '.npz'), 'w')
 np.savez(f, phi_20=phi_20, phi_40=phi_40, phi_80=phi_80, phi_lim=phi_lim)
 f.close()
