@@ -54,5 +54,6 @@ plt.title('$\sigma_{\mathrm{skull}} = \sigma_{\mathrm{brain}} = \sigma_{\mathrm{
 plt.legend(frameon=False, bbox_to_anchor=(1, 0.9), fontsize=11)
 simplify_axes(fig.axes)
 
-plt.savefig(os.path.join('results', 'figure4_scaled.png'), dpi=150)
+# plt.savefig(os.path.join('results', 'figure4_scaled.png'), dpi=150)
+plt.savefig(os.path.join('results', 'figure4.eps'), dpi=150)
 # plt.show()

@@ -94,5 +94,6 @@ fig.legend(lines, line_names, frameon=False, ncol=1, bbox_to_anchor=[1.01, 0.85]
 
 simplify_axes(fig.axes)
 mark_subplots(fig.axes, ypos=1.07, xpos=-0.)
-plt.savefig(os.path.join('results', 'Potentials_scaled.png'), dpi=150)
+# plt.savefig(os.path.join('results', 'Potentials_scaled.png'), dpi=150)
+# plt.savefig(os.path.join('results', 'figure3.eps'), dpi=150)
 # plt.show()
