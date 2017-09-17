@@ -1,9 +1,9 @@
 Description
 -----------
 
-These are the scripts to obtain the forward solution for the four sphere head
+These are the scripts to obtain forward solution for the four sphere head
 models to obtain the EEG potentials from the point dipole sources located
-inside the brain.
+inside the brain of 4 different compositions (brain, csf, skull, scalp).
 
 We implemented, the correct Analytical formulation for this, and an equivalent
 numerical Finite element model, and provide with the previously presented
@@ -20,16 +20,19 @@ a more sophisticated head models and more complicated conductivity profiles.
 
 Authors
 -------
-Written by Chaitanya Chintaluri(1), Solveig Næss(2) and Torbjørn Ness(2)
+Written by Chaitanya Chintaluri(1), Solveig Næss(2) and Torbjørn Ness(3)
 
 1. Nencki Institute of Experimental Biology, Warsaw, Poland.
 2. University of Oslo, Oslo, Norway.
+3. Norwegian University of Life Sciences, Ås, Norway.
 
 License
 -------
+Copyright 2017 Chaitanya Chintaluri, Solveig Næss, and Torbjørn Ness
 
 This software is provided under the GNU General Purpose License version 3.0,
-You will find a copy of this license within this folder.
+You will find a copy of this license within this folder, or from online here: 
+https://www.gnu.org/licenses/gpl-3.0.txt
 
 
 Packages
@@ -128,6 +131,10 @@ python CalcPotential4Sphere.py
 source deactivate # matplotlib not available within the conda environment.
 
 (i)
+
+python figure_solveig_unit_upscaled.py
+# Includes the scaling used in the manuscript
+
 python figure2.py !!!!***!!!!
 Compares that the analytical solution and the FEM solution have converged
 
