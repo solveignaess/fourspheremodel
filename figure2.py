@@ -45,8 +45,8 @@ max_abs_eeg = np.max(np.abs([ana_tan, ana_rad, ana_mix])) # max normalization
 # scaled_error_list0 = [error_list[i]/mean_abs_eeg for i in range(3)]  # average normalization
 scaled_error_list = [error_list[i]/max_abs_eeg for i in range(3)] # max normalization
 # scaled_error_list = [error_list[i]/max_1promille for i in range(3)]
-print 'Error max for rad, tan, mix: ', error_max
-print 'Abs max for rad, tan, min', [np.max(np.abs(ii)) for ii in ana_list]
+# print 'Error max for rad, tan, mix: ', error_max
+# print 'Abs max for rad, tan, min', [np.max(np.abs(ii)) for ii in ana_list]
 
 
 I = 1.0*k
@@ -108,8 +108,8 @@ colors_4s_list = [clr(ana_list[idx]) for idx in range(3)]
 colors_fem_list = [clr(fem_list[idx]) for idx in range(3)]
 # colors_error_list = [clr_error(error_list[idx]) for idx in range(3)]
 colors_scaled_error_list = [clr_error(scaled_error_list[idx]) for idx in range(3)]
-print 'max_RE', np.max(RE_list)
-colors_RE_list = [clr_RE(RE_list[idx]) for idx in range(3)]
+# print 'max_RE', np.max(RE_list)
+# colors_RE_list = [clr_RE(RE_list[idx]) for idx in range(3)]
 print 'colors_4s created, ready for plotting'
 
 #############################################################################
@@ -213,43 +213,43 @@ print 'axes ok'
 cax1 = fig.add_axes([0.31, 0.07, 0.38, 0.01])
 m = plt.cm.ScalarMappable(cmap=plt.cm.PRGn)
 
-# ticks = np.linspace(-100, 100, 9)
+ticks = np.linspace(-vmax,vmax, 9)
 
-m.set_array(ana_list[1])
-# m.set_array(ticks)
+# m.set_array(ana_list[1])
+m.set_array(ticks)
 cbar1 = fig.colorbar(m, cax=cax1, format='%3.3f', extend = 'both', orientation='horizontal')
 cbar1.outline.set_visible(False)
-ticks = np.linspace(-32, 32, 9)
-cax1.set_xticklabels(ticks, rotation=40.)
+# ticks = np.linspace(-32, 32, 9)
+# cax1.set_xticklabels(ticks, rotation=40.)
 
 # ticks = np.linspace(-80, 50, 9)
 # cbar1.locator = ticker.FixedLocator(ticks)
 # cbar1.formatter = ticker.FixedFormatter([str(i) for i in ticks])
 # cbar1.update_ticks()
 
-# cbar1.set_ticks(ticks)
-# cax1.set_xticklabels([str(i) for i in ticks], rotation=40.)
+cbar1.set_ticks(ticks)
+cax1.set_xticklabels([str(i) for i in ticks], rotation=40.)
 cbar1.set_label(r'Potential ($\mathrm{\mu}$V)', labelpad=1.)
 
 cax2 = fig.add_axes([0.79, 0.07, 0.15, 0.01])
 m = plt.cm.ScalarMappable(cmap=plt.cm.Greys)
 # ticks2 = np.linspace(0., 1., 5)
 # ticks2 = np.linspace(vmin_error, vmax_error, 5) # average normalization
-ticks2 = np.linspace(vmin_error, vmax_error_glob_max, 5) # global normalization
+ticks2 = np.linspace(vmin_error, vmax_error_glob_max, 4) # global normalization
 # m.set_array(ticks2)
 # m.set_array(error_list[0])
 m.set_array(ticks2)
 cbar2 = fig.colorbar(m, cax=cax2, format='%3.6f', extend='max', orientation='horizontal')
 cbar2.outline.set_visible(False)
 # cax2.set_xticklabels([str(t) for t in ticks2], rotation=40.)
-# cbar2.set_ticks(ticks2)
-# cax2.set_xticklabels([str(i) for i in ticks2], rotation=40.)
-cbar2.ax.locator_params(axis='x', nbins=4)
+cbar2.set_ticks(ticks2)
+cax2.set_xticklabels([str(i*100) for i in ticks2], rotation=40.)
+# cbar2.ax.locator_params(axis='x', nbins=4)
 # cax2.set_xticks(ticks2)
 # cax2.set_xticklabels(['0.0', '', '1.0', '', '2.0', '', '3.0', '', '4.0', '', '5.0'], rotation = 40)
 # cax2.set_xticklabels(['0.0', '0.6', '1.2', '1.8', '2.4', '3.0'], rotation = 40)
 # cax2.set_xticklabels(['0.0', '1.0', '2.0', '3.0'], rotation = 40) # average normalization
-cax2.set_xticklabels(['0.0', '0.1', '0.2', '0.3'], rotation = 40) # max normalization
+# cax2.set_xticklabels(['0.0', '0.1', '0.2', '0.3'], rotation = 40) # max normalization
 # cax2.set_xticklabels(['0', '', '20', '', '40', '', '60', '', '80', '', '100'], rotation = 40)
 # cax2.set_xticklabels([str(tick) for tick in ticks2], rotation = 40)
 # multiply both P and phi's with 1000 and we get the same result, but in mV
@@ -326,5 +326,5 @@ fig.set_size_inches(6.5, 6.)
 print 'saving figure'
 # fig.tight_layout()
 # plt.savefig('./results/figure2_w_scaled_glob_avg_strength_error.png', dpi=300., bbox_inches='tight')
-plt.savefig('./results/figure2_w_scaled_glob_max.png', dpi=300., bbox_inches='tight')
+plt.savefig('./results/figure2_w_scaled_glob_max5.png', dpi=600., bbox_inches='tight')
 # plt.savefig('./results/figure2_w_RE.png', dpi=300., bbox_inches='tight')
